@@ -124,3 +124,6 @@ dmypy.json
 
 # don't include runner file
 runner.py
+
+# vscode
+.vscode
