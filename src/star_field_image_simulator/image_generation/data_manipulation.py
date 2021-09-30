@@ -242,7 +242,7 @@ class Celestial2Image:
             Right ascension: {self.alpha0},
             Declination: {self.delta0},
             Roll: {self.phi0},
-        Field of View: 
+        Field of View:
             Horizontal field of view: {self.fovX=},
             Vertical field of view: {self.fovY=},
         Image Resolution
