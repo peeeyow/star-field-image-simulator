@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 from star_field_image_simulator.image_generation.data_manipulation import Star
@@ -50,3 +51,60 @@ def test_star_cartesian(
     assert star.X == approx(X, rel=REL)
     assert star.Y == approx(Y, rel=REL)
     assert star.Z == approx(Z, rel=REL)
+
+
+# all camera matrices uses fov = (12,12) and res = (1024, 1024)
+@pytest.mark.parametrize(
+    "right_ascension, declination, camera_matrix, u, v",
+    [
+        (
+            0,
+            0,
+            # test (alpha0, delta0, phi0) = (1.43, -2.56, 69)
+            np.array(
+                [
+                    [-264.696922372772, -1752.88895437964, 4566.13134910905],
+                    [-475.786594589905, -4561.09536090734, -1721.12633747041],
+                    [-0.998690866589801, -0.024930711441, 0.044665564108286],
+                ]
+            ),
+            265.04390019769,
+            476.410279203373,
+        ),
+        (
+            20,
+            20,
+            # test (alpha0, delta0, phi0) = (20, 20, 0)
+            np.array(
+                [
+                    [1213.9940212359, -4742.12959945932, -175.114313382742],
+                    [1113.51581237692, 405.286611089947, -4752.69028476231],
+                    [-0.883022221559489, -0.32139380484327, -0.342020143325],
+                ]
+            ),
+            512,
+            512,
+        ),
+        (
+            43.29,
+            -84.91,
+            # test (alpha0, delta0, phi0) = (214.26, -88.18, 37)
+            np.array(
+                [
+                    [-4598.44382202216, 1575.02714178946, 604.85003327187],
+                    [1576.85796980135, 4621.15490981963, 388.182800932945],
+                    [0.0262490816715987, 0.017879069553638, 0.999495535049204],
+                ]
+            ),
+            809.462353824356,
+            3.71984543373905,
+        ),
+    ],
+)
+def test_compute_pixel_coordinate(
+    right_ascension, declination, camera_matrix, u, v
+):
+    star = Star(0, right_ascension, declination, 0)
+    star.compute_pixel_coordinate(camera_matrix)
+    assert star.u == approx(u, rel=REL)
+    assert star.v == approx(v, rel=REL)

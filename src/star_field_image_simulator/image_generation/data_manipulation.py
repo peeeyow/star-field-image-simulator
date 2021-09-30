@@ -7,18 +7,18 @@ from typing import Optional
 
 class Star:
     """
-    Star class use to represent a star in the celestial coordinate system
+    Star class used to represent a star in the celestial coordinate system
 
     Attributes
     ----------
     index : int
-        Star index, can be found the star catalog.
+        Star index, can be found the star catalog
     right_ascension : float
-        Star right ascension location.
-        Represented in degrees.
+        Star right ascension location
+        Represented in degrees
     declination : float
-        Star declination location.
-        Represented in degrees.
+        Star declination location
+        Represented in degrees
     magnitude : float
         star magnitude
     x : float
@@ -30,6 +30,12 @@ class Star:
     z : float
         Star z-coordinate location when celestial
             coordinates are converted to cartesian coordinates
+
+    Methods
+    -------
+    compute_pixel_coordinate(camera_matrix)
+        Computes for the u and v pixel-coordinates based
+            from the given camera_matrix
     """
 
     def __init__(
@@ -65,6 +71,32 @@ class Star:
         """Returns Z-coordinate of the star"""
         return math.sin(math.radians(self.declination))
 
+    @property
+    def u(self) -> Optional[float]:
+        """Returns the u-pixel coordinate"""
+        return self._u
+
+    @u.setter
+    def u(self, u: Optional[float]) -> None:
+        """Sets the u-pixel coordinate"""
+        self._u = u
+
+    @property
+    def v(self) -> Optional[float]:
+        """Returns the v-pixel coordinate"""
+        return self._v
+
+    @v.setter
+    def v(self, v: Optional[float]) -> None:
+        """Sets the v-pixel coordinate"""
+        self._v = v
+
+    def compute_pixel_coordinate(self, camera_matrix: npt.ArrayLike) -> None:
+        """Computes for the u and v pixel coordinates"""
+        direction_vector = np.array([[self.X], [self.Y], [self.Z]])
+        homogenous_vector = np.dot(camera_matrix, direction_vector).flatten()
+        self.u, self.v, _ = homogenous_vector / homogenous_vector[-1]
+
     def __repr__(self) -> str:
         return f"Star({self.index}, {self.right_ascension}, \
             {self.declination}, {self.magnitude})"
@@ -81,24 +113,38 @@ class Star:
         {self.Z=},
         """
 
-    @property
-    def u(self) -> Optional[float]:
-        return self._u
-
-    @u.setter
-    def u(self, u: Optional[float]) -> None:
-        self._u = u
-
-    @property
-    def v(self) -> Optional[float]:
-        return self._v
-
-    @v.setter
-    def v(self, v: Optional[float]) -> None:
-        self._v = v
-
 
 class Celestial2Image:
+    """
+    Celestial2Image Class used to represent camera matrices and sub-matrices
+
+    Attributes
+    ----------
+    alpha0 : float
+        Camera boresight right_ascension
+    delta0 : float
+        Camera boresight declination
+    phi0 : float
+        Camera boresight roll
+    fovX : float
+        Camera horizontal field of view
+    fovY : float
+        Camera vertical field of view
+    resX : int
+        Camera horizontal pixel count (resolution)
+    resY : int
+        Camera vertical pixel count (resolution)
+    rotation_matrix : numpy.ndarray[shape=(3,3), dtype[numpy.float]]
+        Camera's external parameters
+        Rotation matrix from celestial coordinate to sensor coordinate
+    projection_matrix : numpy.ndarray[shape=(3,3), dtype[numpy.float]]
+        Camera's internal parameters
+        Projection matrix from sensor coordinate to image plane
+    camara_matrix : numpy.ndarray[shape=(3,3), dtype[numpy.float]]
+        Camera's complete parameters
+        Matrix product of projection_matrix and rotation_matrix
+    """
+
     def __init__(
         self,
         alpha0: float,
@@ -168,6 +214,7 @@ class Celestial2Image:
 
     @property
     def projection_matrix(self) -> npt.ArrayLike:
+        """Returns projection matrix"""
         u0 = self.resX / 2
         v0 = self.resY / 2
         # u and v coordinate scaling
@@ -178,7 +225,27 @@ class Celestial2Image:
 
     @property
     def camera_matrix(self):
+        """Returns camera matrix"""
         return np.dot(
             self.projection_matrix,
             self.rotation_matrix,
         )
+
+    def __repr__(self) -> str:
+        return f"Celestial2Image( {self.alpha0}, {self.delta0}, {self.phi0},\
+        {self.fovX}, {self.fovY}, {self.resX}, {self.resY},)"
+
+    def __str__(self) -> str:
+        return f"""
+        Camera Properties
+        Boresight:
+            Right ascension: {self.alpha0},
+            Declination: {self.delta0},
+            Roll: {self.phi0},
+        Field of View: 
+            Horizontal field of view: {self.fovX=},
+            Vertical field of view: {self.fovY=},
+        Image Resolution
+            Horizontal resolution: {self.resX=},
+            Vertical resolution: {self.resY=},
+        """
