@@ -6,4 +6,4 @@ Constants
 REL : float
     almost equal resolution
 """
-REL = 1e-3
+REL = 1e-4
