@@ -180,3 +180,79 @@ def test_projection_matrix(fovX, fovY, resX, resY, projection_matrix):
     numpy.testing.assert_allclose(
         c2i.projection_matrix, projection_matrix, atol=REL
     )
+
+
+@pytest.mark.parametrize(
+    "alpha0, delta0, phi0, fovX, fovY, resX, resY, camera_matrix",
+    [
+        (
+            90,
+            90,
+            90,
+            8,
+            8,
+            512,
+            512,
+            numpy.array(
+                [
+                    [0, -3660.970562, -256],
+                    [3660.970562, 0, -256],
+                    [0, 0, -1],
+                ]
+            ),
+        ),
+        (
+            90,
+            90,
+            90,
+            12,
+            12,
+            1024,
+            1024,
+            numpy.array(
+                [
+                    [0, -4871.354601, -512],
+                    [4871.354601, 0, -512],
+                    [0, 0, -1],
+                ]
+            ),
+        ),
+        (
+            227.6493,
+            -72.4427,
+            -39.8703,
+            8,
+            8,
+            512,
+            512,
+            numpy.array(
+                [
+                    [-5.171476e02, 3.603556e03, -4.638817e02],
+                    [3.591127e03, 4.558595e02, -6.035240e02],
+                    [2.032179e-01, 2.229370e-01, 9.534157e-01],
+                ]
+            ),
+        ),
+        (
+            227.6493,
+            -72.4427,
+            -39.8703,
+            12,
+            12,
+            1024,
+            1024,
+            numpy.array(
+                [
+                    [-6.533024e02, 4.833160e03, -4.538705e02],
+                    [4.813243e03, 6.447779e02, -6.396812e02],
+                    [2.032179e-01, 2.229370e-01, 9.534157e-01],
+                ]
+            ),
+        ),
+    ],
+)
+def test_camera_matrix(
+    alpha0, delta0, phi0, fovX, fovY, resX, resY, camera_matrix
+):
+    c2i = Celestial2Image(alpha0, delta0, phi0, fovX, fovY, resX, resY)
+    numpy.testing.assert_allclose(c2i.camera_matrix, camera_matrix, atol=REL)

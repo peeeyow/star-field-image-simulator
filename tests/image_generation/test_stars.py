@@ -29,6 +29,8 @@ def test_star_init(index, right_ascension, declination, magnitude):
     assert star.right_ascension == approx(right_ascension, rel=REL)
     assert star.declination == approx(declination, rel=REL)
     assert star.magnitude == approx(magnitude, rel=REL)
+    assert star.u is None
+    assert star.v is None
 
 
 @pytest.mark.parametrize(

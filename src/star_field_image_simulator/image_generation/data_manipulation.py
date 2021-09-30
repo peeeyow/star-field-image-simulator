@@ -2,6 +2,8 @@ import math
 import numpy as np
 import numpy.typing as npt
 
+from typing import Optional
+
 
 class Star:
     """
@@ -38,6 +40,8 @@ class Star:
         self.right_ascension = right_ascension
         self.declination = declination
         self.magnitude = magnitude
+        self.u = None
+        self.v = None
 
     @property
     def X(self) -> float:
@@ -72,6 +76,22 @@ class Star:
         {self.Y=},
         {self.Z=},
         """
+
+    @property
+    def u(self) -> Optional[float]:
+        return self._u
+
+    @u.setter
+    def u(self, u: Optional[float]) -> None:
+        self._u = u
+
+    @property
+    def v(self) -> Optional[float]:
+        return self._v
+
+    @v.setter
+    def v(self, v: Optional[float]) -> None:
+        self._v = v
 
 
 class Celestial2Image:
@@ -151,3 +171,7 @@ class Celestial2Image:
         fv = self.resY / (2 * math.tan(math.radians(self.fovY / 2)))
         # Intrinsic camera matrix
         return np.array([[fu, 0, u0], [0, -fv, v0], [0, 0, 1]])
+
+    @property
+    def camera_matrix(self) -> npt.ArrayLike:
+        return np.matmul(self.projection_matrix, self.rotation_matrix)
