@@ -22,11 +22,14 @@ class Star:
     magnitude : float
         star magnitude
     x : float
-        Star x-coordinate location when celestial coordinates are converted to cartesian coordinates
+        Star x-coordinate location when celestial
+            coordinates are converted to cartesian coordinates
     y : float
-        Star y-coordinate location when celestial coordinates are converted to cartesian coordinates
+        Star y-coordinate location when celestial
+            coordinates are converted to cartesian coordinates
     z : float
-        Star z-coordinate location when celestial coordinates are converted to cartesian coordinates
+        Star z-coordinate location when celestial
+            coordinates are converted to cartesian coordinates
     """
 
     def __init__(
@@ -63,7 +66,8 @@ class Star:
         return math.sin(math.radians(self.declination))
 
     def __repr__(self) -> str:
-        return f"Star({self.index}, {self.right_ascension}, {self.declination}, {self.magnitude})"
+        return f"Star({self.index}, {self.right_ascension}, \
+            {self.declination}, {self.magnitude})"
 
     def __str__(self) -> str:
         return f"""
@@ -173,5 +177,8 @@ class Celestial2Image:
         return np.array([[fu, 0, u0], [0, -fv, v0], [0, 0, 1]])
 
     @property
-    def camera_matrix(self) -> npt.ArrayLike:
-        return np.matmul(self.projection_matrix, self.rotation_matrix)
+    def camera_matrix(self):
+        return np.dot(
+            self.projection_matrix,
+            self.rotation_matrix,
+        )

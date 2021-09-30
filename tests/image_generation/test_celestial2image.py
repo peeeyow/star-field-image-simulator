@@ -7,7 +7,6 @@ from star_field_image_simulator.image_generation.data_manipulation import (
 )
 
 from numpy.random import default_rng
-from pytest import approx
 from .constants import REL
 
 
