@@ -1,3 +1,6 @@
+import math
+
+
 class Star:
     """
     Star class use to represent a star in the celestial coordinate system
@@ -26,7 +29,11 @@ class Star:
     """
 
     def __init__(
-        self, index: int, right_ascension: float, declination: float, magnitude: float
+        self,
+        index: int,
+        right_ascension: float,
+        declination: float,
+        magnitude: float,
     ) -> None:
         self.index = index
         self.right_ascension = right_ascension
@@ -34,12 +41,20 @@ class Star:
         self.magnitude = magnitude
 
     @property
-    def x(self):
-        return self._x
+    def X(self):
+        return math.cos(math.radians(self.declination)) * math.cos(
+            math.radians(self.right_ascension)
+        )
 
-    @x.setter
-    def x(self):
-        return
+    @property
+    def Y(self):
+        return math.cos(math.radians(self.declination)) * math.sin(
+            math.radians(self.right_ascension)
+        )
+
+    @property
+    def Z(self):
+        return math.sin(math.radians(self.declination))
 
     def __repr__(self) -> str:
         return f"Star({self.index}, {self.right_ascension}, {self.declination}, {self.magnitude})"
@@ -50,4 +65,7 @@ class Star:
         {self.right_ascension=},
         {self.declination=},
         {self.magnitude=},
+        {self.x=},
+        {self.y=},
+        {self.z=},
         """
