@@ -61,7 +61,7 @@ def test_cwlwstial2image_init(alpha0, delta0, phi0, fovX, fovY, resX, resY):
 
 
 @pytest.mark.parametrize(
-    "alpha0, delta0, phi0, rot_matrix",
+    "alpha0, delta0, phi0, rotation_matrix",
     [
         (0, 0, 0, numpy.array([[0, -1, 0], [0, 0, 1], [-1, 0, 0]])),
         (
@@ -115,6 +115,68 @@ def test_cwlwstial2image_init(alpha0, delta0, phi0, fovX, fovY, resX, resY):
         ),
     ],
 )
-def test_rot_matrix(alpha0, delta0, phi0, rot_matrix):
+def test_rotation_matrix(alpha0, delta0, phi0, rotation_matrix):
     c2i = Celestial2Image(alpha0, delta0, phi0, 0, 0, 0, 0)
-    numpy.testing.assert_allclose(c2i.rot_matrix, rot_matrix, atol=REL)
+    numpy.testing.assert_allclose(
+        c2i.rotation_matrix, rotation_matrix, atol=REL
+    )
+
+
+@pytest.mark.parametrize(
+    "fovX, fovY, resX, resY, projection_matrix",
+    [
+        (
+            8,
+            8,
+            512,
+            512,
+            numpy.array(
+                [[3660.970562, 0, 256], [0, -3660.970562, 256], [0, 0, 1]]
+            ),
+        ),
+        (
+            12,
+            12,
+            512,
+            512,
+            numpy.array(
+                [
+                    [2435.6773, 0, 256],
+                    [0, -2435.6773, 256],
+                    [0, 0, 1],
+                ]
+            ),
+        ),
+        (
+            8,
+            8,
+            1024,
+            1024,
+            numpy.array(
+                [
+                    [7321.941123, 0, 512],
+                    [0, -7321.941123, 512],
+                    [0, 0, 1],
+                ]
+            ),
+        ),
+        (
+            12,
+            12,
+            1024,
+            1024,
+            numpy.array(
+                [
+                    [4871.354601, 0, 512],
+                    [0, -4871.354601, 512],
+                    [0, 0, 1],
+                ]
+            ),
+        ),
+    ],
+)
+def test_projection_matrix(fovX, fovY, resX, resY, projection_matrix):
+    c2i = Celestial2Image(0, 0, 0, fovX, fovY, resX, resY)
+    numpy.testing.assert_allclose(
+        c2i.projection_matrix, projection_matrix, atol=REL
+    )

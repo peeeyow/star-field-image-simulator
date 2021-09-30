@@ -1,5 +1,6 @@
 import math
-import numpy
+import numpy as np
+import numpy.typing as npt
 
 
 class Star:
@@ -39,21 +40,21 @@ class Star:
         self.magnitude = magnitude
 
     @property
-    def X(self):
+    def X(self) -> float:
         """Returns X-coordinate of the star"""
         return math.cos(math.radians(self.declination)) * math.cos(
             math.radians(self.right_ascension)
         )
 
     @property
-    def Y(self):
+    def Y(self) -> float:
         """Returns Y-coordinate of the star"""
         return math.cos(math.radians(self.declination)) * math.sin(
             math.radians(self.right_ascension)
         )
 
     @property
-    def Z(self):
+    def Z(self) -> float:
         """Returns Z-coordinate of the star"""
         return math.sin(math.radians(self.declination))
 
@@ -93,7 +94,7 @@ class Celestial2Image:
         self.resY = resY
 
     @property
-    def rot_matrix(self):
+    def rotation_matrix(self) -> npt.ArrayLike:
         """Returns the rotation matrix."""
         a1 = math.sin(math.radians(self.alpha0)) * math.cos(
             math.radians(self.phi0)
@@ -137,6 +138,16 @@ class Celestial2Image:
         )
         c3 = -math.sin(math.radians(self.delta0))
 
-        return numpy.transpose(
-            numpy.array([[a1, a2, a3], [b1, b2, b3], [c1, c2, c3]])
+        return np.transpose(
+            np.array([[a1, a2, a3], [b1, b2, b3], [c1, c2, c3]])
         )
+
+    @property
+    def projection_matrix(self) -> npt.ArrayLike:
+        u0 = self.resX / 2
+        v0 = self.resY / 2
+        # u and v coordinate scaling
+        fu = self.resX / (2 * math.tan(math.radians(self.fovX / 2)))
+        fv = self.resY / (2 * math.tan(math.radians(self.fovY / 2)))
+        # Intrinsic camera matrix
+        return np.array([[fu, 0, u0], [0, -fv, v0], [0, 0, 1]])
