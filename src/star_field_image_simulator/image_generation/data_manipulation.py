@@ -91,3 +91,52 @@ class Celestial2Image:
         self.fovY = fovY
         self.resX = resX
         self.resY = resY
+
+    @property
+    def rot_matrix(self):
+        """Returns the rotation matrix."""
+        a1 = math.sin(math.radians(self.alpha0)) * math.cos(
+            math.radians(self.phi0)
+        ) - math.cos(math.radians(self.alpha0)) * math.sin(
+            math.radians(self.delta0)
+        ) * math.sin(
+            math.radians(self.phi0)
+        )
+        a2 = -math.sin(math.radians(self.alpha0)) * math.sin(
+            math.radians(self.phi0)
+        ) - math.cos(math.radians(self.alpha0)) * math.sin(
+            math.radians(self.delta0)
+        ) * math.cos(
+            math.radians(self.phi0)
+        )
+        a3 = -math.cos(math.radians(self.alpha0)) * math.cos(
+            math.radians(self.delta0)
+        )
+        b1 = -math.cos(math.radians(self.alpha0)) * math.cos(
+            math.radians(self.phi0)
+        ) - math.sin(math.radians(self.alpha0)) * math.sin(
+            math.radians(self.delta0)
+        ) * math.sin(
+            math.radians(self.phi0)
+        )
+        b2 = math.cos(math.radians(self.alpha0)) * math.sin(
+            math.radians(self.phi0)
+        ) - math.sin(math.radians(self.alpha0)) * math.sin(
+            math.radians(self.delta0)
+        ) * math.cos(
+            math.radians(self.phi0)
+        )
+        b3 = -math.sin(math.radians(self.alpha0)) * math.cos(
+            math.radians(self.delta0)
+        )
+        c1 = math.cos(math.radians(self.delta0)) * math.sin(
+            math.radians(self.phi0)
+        )
+        c2 = math.cos(math.radians(self.delta0)) * math.cos(
+            math.radians(self.phi0)
+        )
+        c3 = -math.sin(math.radians(self.delta0))
+
+        return numpy.transpose(
+            numpy.array([[a1, a2, a3], [b1, b2, b3], [c1, c2, c3]])
+        )
