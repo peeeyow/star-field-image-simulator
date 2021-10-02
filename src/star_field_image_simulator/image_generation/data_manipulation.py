@@ -10,6 +10,7 @@ from .constants import (
     DELTA_MAX,
     DELTA_MIN,
     HALF_REVOLUTION,
+    REL,
 )
 from typing import Optional, Union
 
@@ -105,6 +106,24 @@ class Star:
         direction_vector = np.array([[self.X], [self.Y], [self.Z]])
         homogenous_vector = np.dot(camera_matrix, direction_vector).flatten()
         self.u, self.v, _ = homogenous_vector / homogenous_vector[-1]
+
+    def __eq__(self, o: object) -> bool:
+        """Check equality through star id, right ascension, declination,
+        and magnitude"""
+        if not isinstance(o, Star):
+            return False
+
+        if (
+            self.index == o.index
+            and math.isclose(
+                self.right_ascension, o.right_ascension, abs_tol=REL
+            )
+            and math.isclose(self.declination, o.declination, abs_tol=REL)
+            and math.isclose(self.magnitude, o.magnitude, abs_tol=REL)
+        ):
+            return True
+
+        return False
 
     def __repr__(self) -> str:
         return f"Star({self.index}, {self.right_ascension}, \
