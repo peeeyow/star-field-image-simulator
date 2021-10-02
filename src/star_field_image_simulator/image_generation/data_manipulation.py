@@ -289,7 +289,7 @@ def fetch_star_with_loop(
     curs: sqlite3.Cursor, dec_fov_min: float, dec_fov_max: float
 ) -> npt.ArrayLike:
     curs.execute(
-        """SELECT * FROM star_catalog 
+        """SELECT * FROM star_catalog
         WHERE declination BETWEEN :dec_fov_min AND :dec_fov_max;""",
         {"dec_fov_min": dec_fov_min, "dec_fov_max": dec_fov_max},
     )
@@ -326,7 +326,7 @@ def fetch_star_no_loop(
 ) -> npt.ArrayLike:
     curs.execute(
         """SELECT * FROM star_catalog
-        WHERE right_ascension BETWEEN :ra_fov_min AND :ra_fov_max 
+        WHERE right_ascension BETWEEN :ra_fov_min AND :ra_fov_max
         AND  declination BETWEEN :dec_fov_min AND :dec_fov_max;""",
         {
             "ra_fov_min": ra_fov_min,
