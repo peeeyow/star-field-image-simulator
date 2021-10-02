@@ -411,3 +411,29 @@ def fetch_stars(
     return fetch_star_no_loop(
         curs, ra_fov_min, ra_fov_max, dec_fov_min, dec_fov_max, magnitude
     )
+
+
+def create_stars(
+    alpha0: float,
+    delta0: float,
+    fovX: float,
+    fovY: float,
+    magnitude: float,
+    path: Union[pathlib.Path, str],
+) -> list[Star]:
+    stars_as_list = fetch_stars(alpha0, delta0, fovX, fovY, magnitude, path)
+    return [  # type: ignore
+        Star(idx, ra, dec, mag)  # type: ignore
+        for idx, ra, dec, mag in stars_as_list  # type: ignore
+    ]  # type: ignore
+
+
+# def simulate_sfim(
+#     alpha0: float,
+#     delta0: float,
+#     phi0: float,
+#     fovX: float,
+#     fovY: float,
+#     magnitude: float,
+#     path: Union[pathlib.Path, str],
+# ) -> list[Star]:
