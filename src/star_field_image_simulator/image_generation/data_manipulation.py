@@ -1,8 +1,17 @@
 import math
 import numpy as np
 import numpy.typing as npt
+import pathlib
+import sqlite3
 
-from typing import Optional
+from .constants import (
+    ALPHA_MAX,
+    ALPHA_MIN,
+    DELTA_MAX,
+    DELTA_MIN,
+    HALF_REVOLUTION,
+)
+from typing import Optional, Union
 
 
 class Star:
@@ -249,3 +258,120 @@ class Celestial2Image:
             Horizontal resolution: {self.resX=},
             Vertical resolution: {self.resY=},
         """
+
+
+"""
+SQL wrapper functions
+"""
+
+
+def fetch_star_delta_is_northpole(
+    curs: sqlite3.Cursor, radius: float
+) -> npt.ArrayLike:
+    curs.execute(
+        "SELECT * FROM star_catalog WHERE declination > :declination;",
+        {"declination": DELTA_MAX - radius},
+    )
+    return np.array(curs.fetchall())
+
+
+def fetch_star_delta_is_southpole(
+    curs: sqlite3.Cursor, radius: float
+) -> npt.ArrayLike:
+    curs.execute(
+        "SELECT * FROM star_catalog WHERE declination < :declination;",
+        {"declination": DELTA_MIN + radius},
+    )
+    return np.array(curs.fetchall())
+
+
+def fetch_star_with_loop(
+    curs: sqlite3.Cursor, dec_fov_min: float, dec_fov_max: float
+) -> npt.ArrayLike:
+    curs.execute(
+        """SELECT * FROM star_catalog 
+        WHERE declination BETWEEN :dec_fov_min AND :dec_fov_max;""",
+        {"dec_fov_min": dec_fov_min, "dec_fov_max": dec_fov_max},
+    )
+    return np.array(curs.fetchall())
+
+
+def fetch_star_with_overflow(
+    curs: sqlite3.Cursor,
+    ra_fov_min: float,
+    ra_fov_max: float,
+    dec_fov_min: float,
+    dec_fov_max: float,
+) -> npt.ArrayLike:
+    curs.execute(
+        """SELECT * FROM star_catalog
+        WHERE right_ascension NOT BETWEEN :ra_fov_max AND :ra_fov_min
+        AND  declination BETWEEN :dec_fov_min AND :dec_fov_max;""",
+        {
+            "ra_fov_min": ra_fov_min,
+            "ra_fov_max": ra_fov_max,
+            "dec_fov_min": dec_fov_min,
+            "dec_fov_max": dec_fov_max,
+        },
+    )
+    return np.array(curs.fetchall())
+
+
+def fetch_star_no_loop(
+    curs: sqlite3.Cursor,
+    ra_fov_min: float,
+    ra_fov_max: float,
+    dec_fov_min: float,
+    dec_fov_max: float,
+) -> npt.ArrayLike:
+    curs.execute(
+        """SELECT * FROM star_catalog
+        WHERE right_ascension BETWEEN :ra_fov_min AND :ra_fov_max 
+        AND  declination BETWEEN :dec_fov_min AND :dec_fov_max;""",
+        {
+            "ra_fov_min": ra_fov_min,
+            "ra_fov_max": ra_fov_max,
+            "dec_fov_min": dec_fov_min,
+            "dec_fov_max": dec_fov_max,
+        },
+    )
+    return curs.fetchall()
+
+
+def fetch_stars(
+    alpha0: float,
+    delta0: float,
+    fovX: float,
+    fovY: float,
+    path: Union[pathlib.Path, str],
+) -> npt.ArrayLike:
+    conn = sqlite3.connect(path)
+    curs = conn.cursor()
+
+    radius = np.sqrt(fovX ** 2 + fovY ** 2) / 2
+
+    if delta0 == 90:
+        return fetch_star_delta_is_northpole(curs, radius)
+
+    if delta0 == -90:
+        return fetch_star_delta_is_southpole(curs, radius)
+
+    dec_fov_min = max(delta0 - radius, DELTA_MIN)
+    dec_fov_max = min(delta0 + radius, DELTA_MAX)
+
+    if radius / math.cos(math.radians(delta0)) >= HALF_REVOLUTION:
+        return fetch_star_with_loop(curs, dec_fov_min, dec_fov_max)
+
+    ra_fov_min = alpha0 - radius / np.cos(np.radians(delta0))
+    ra_fov_max = alpha0 + radius / np.cos(np.radians(delta0))
+
+    if ra_fov_max >= ALPHA_MAX or ra_fov_min <= ALPHA_MIN:
+        ra_fov_min %= ALPHA_MAX
+        ra_fov_max %= ALPHA_MAX
+        return fetch_star_with_overflow(
+            curs, ra_fov_min, ra_fov_max, dec_fov_min, dec_fov_max
+        )
+
+    return fetch_star_no_loop(
+        curs, ra_fov_min, ra_fov_max, dec_fov_min, dec_fov_max
+    )
