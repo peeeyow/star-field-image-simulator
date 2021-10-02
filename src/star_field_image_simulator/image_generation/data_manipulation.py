@@ -11,7 +11,7 @@ from .constants import (
     DELTA_MIN,
     HALF_REVOLUTION,
 )
-from typing import MappingView, Optional, Union
+from typing import Optional, Union
 
 
 class Star:
