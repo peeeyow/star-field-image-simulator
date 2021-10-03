@@ -255,3 +255,22 @@ def test_camera_matrix(
 ):
     c2i = Celestial2Image(alpha0, delta0, phi0, fovX, fovY, resX, resY)
     numpy.testing.assert_allclose(c2i.camera_matrix, camera_matrix, atol=REL)
+
+
+def test_camera_matrix_on_the_fly():
+    alpha0 = 350
+    delta0 = 90
+    phi0 = 0
+    fovX = 12
+    fovY = 12
+    resX = 1024
+    resY = 1024
+    c2i = Celestial2Image(alpha0, delta0, phi0, fovX, fovY, resX, resY)
+    camera_matrix = numpy.array(
+        [
+            [-845.901849157002, -4797.34777830511, -512],
+            [4797.34777830511, -845.901849157002, -512],
+            [0, 0, -1],
+        ]
+    )
+    numpy.testing.assert_allclose(c2i.camera_matrix, camera_matrix, atol=REL)
