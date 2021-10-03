@@ -2,6 +2,7 @@ import math
 import numpy as np
 import numpy.typing as npt
 import pathlib
+import random
 import sqlite3
 
 from .constants import (
@@ -10,11 +11,14 @@ from .constants import (
     DELTA_MAX,
     DELTA_MIN,
     HALF_REVOLUTION,
+    NUMBER_OF_STARS_MIN,
     REL,
-    # U_COORDINATE_ORIGIN,
-    # V_COORDINATE_ORIGIN,
 )
+from numpy.random import default_rng
 from typing import Optional, Union
+
+
+rng = default_rng()
 
 
 class Star:
@@ -468,12 +472,30 @@ def create_stars(
     return ret
 
 
-# def simulate_sfim(
-#     alpha0: float,
-#     delta0: float,
-#     phi0: float,
-#     fovX: float,
-#     fovY: float,
-#     magnitude: float,
-#     path: Union[pathlib.Path, str],
-# ) -> list[Star]:
+def remove_random_stars(
+    stars: list[Star], num_missing_stars: int
+) -> list[Star]:
+    if num_missing_stars < 0:
+        raise ValueError("num_missing_stars can't be less than 0")
+    if num_missing_stars == 0:
+        return stars
+    num_stars = len(stars)
+    num_remaining_stars = max(
+        num_stars - num_missing_stars, NUMBER_OF_STARS_MIN
+    )
+    return random.sample(stars, num_remaining_stars)
+
+
+def create_false_stars(
+    num_false_stars: int,
+    resX: int,
+    resY: int,
+    min_false_star_magnitude: float,
+) -> list[Star]:
+    false_stars = []
+    for _ in range(num_false_stars):
+        star = Star(0, 0, 0, min_false_star_magnitude * rng.random())
+        star.u = resX * rng.random()
+        star.v = resY * rng.random()
+        false_stars.append(star)
+    return false_stars
