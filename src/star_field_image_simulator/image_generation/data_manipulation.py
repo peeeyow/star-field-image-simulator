@@ -11,6 +11,8 @@ from .constants import (
     DELTA_MIN,
     HALF_REVOLUTION,
     REL,
+    # U_COORDINATE_ORIGIN,
+    # V_COORDINATE_ORIGIN,
 )
 from typing import Optional, Union
 
@@ -40,6 +42,10 @@ class Star:
     z : float
         Star z-coordinate location when celestial
             coordinates are converted to cartesian coordinates
+    u : float
+        Star image u-coordinate based from the given camera matrix
+    v : float
+        Star image v-coordinate based from the given camera matrix
 
     Methods
     -------
@@ -413,19 +419,53 @@ def fetch_stars(
     )
 
 
+def is_within_canvass(
+    star: Star,
+    u_coordinate_origin: int,
+    resX: int,
+    v_coordinate_origin: int,
+    resY: int,
+) -> list[Star]:
+    return (  # type: ignore
+        u_coordinate_origin <= star.u <= resX  # type: ignore
+        and v_coordinate_origin <= star.v <= resY  # type: ignore
+    )  # type: ignore
+
+
 def create_stars(
     alpha0: float,
     delta0: float,
+    magnitude: float,
     fovX: float,
     fovY: float,
-    magnitude: float,
+    u_coordinate_origin: int,
+    resX: int,
+    v_coordinate_origin: int,
+    resY: int,
+    c2i: Celestial2Image,
     path: Union[pathlib.Path, str],
 ) -> list[Star]:
     stars_as_list = fetch_stars(alpha0, delta0, fovX, fovY, magnitude, path)
-    return [  # type: ignore
+    stars = [  # type: ignore
         Star(idx, ra, dec, mag)  # type: ignore
         for idx, ra, dec, mag in stars_as_list  # type: ignore
     ]  # type: ignore
+    for star in stars:
+        star.compute_pixel_coordinate(
+            c2i.camera_matrix,
+        )
+    ret = [  # type: ignore
+        star  # type: ignore
+        for star in stars  # type: ignore
+        if is_within_canvass(  # type: ignore
+            star,  # type: ignore
+            u_coordinate_origin,  # type: ignore
+            resX,  # type: ignore
+            v_coordinate_origin,  # type: ignore
+            resY,  # type: ignore
+        )  # type: ignore
+    ]  # type: ignore
+    return ret
 
 
 # def simulate_sfim(
