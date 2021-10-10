@@ -56,12 +56,12 @@ def generate_star_field_image(
             uScope = np.arange(U_COORDINATE_ORIGIN, resX)
             vScope = np.arange(V_COORDINATE_ORIGIN, resY)
 
-        scope = np.ix_(vScope.astype(int), uScope.astype(int))
+        scope = np.ix_(vScope.astype(int), uScope.astype(int))  # type: ignore
         # input to erf
-        x1 = (indices_u[scope] - Ui) / (2 ** 0.5 * star_sigma)
-        x2 = (indices_u[scope] - 1 - Ui) / (2 ** 0.5 * star_sigma)
-        y1 = (indices_v[scope] - Vi) / (2 ** 0.5 * star_sigma)
-        y2 = (indices_v[scope] - 1 - Vi) / (2 ** 0.5 * star_sigma)
+        x1 = (indices_u[scope] + 1 - Ui) / (np.sqrt(2) * star_sigma)
+        x2 = (indices_u[scope] - Ui) / (np.sqrt(2) * star_sigma)
+        y1 = (indices_v[scope] + 1 - Vi) / (np.sqrt(2) * star_sigma)
+        y2 = (indices_v[scope] - Vi) / (np.sqrt(2) * star_sigma)
 
         # computing starContribution
         starContribution = (
@@ -70,8 +70,6 @@ def generate_star_field_image(
             * (erf(x1) - erf(x2))
             * (erf(y1) - erf(y2))
         )
-
-        # print(f"{starContribution=}")
 
         star_field_image[scope] += starContribution
     return star_field_image
@@ -113,6 +111,6 @@ def simulate_star_field_image(
             num_false_stars, resX, resY, min_false_star_magnitude
         )
     )
-    return generate_star_field_image(
-        stars, resX, resY, star_intensity, star_sigma, lazy
-    )
+    return generate_star_field_image(  # type: ignore
+        stars, resX, resY, star_intensity, star_sigma, lazy  # type: ignore
+    )  # type: ignore
