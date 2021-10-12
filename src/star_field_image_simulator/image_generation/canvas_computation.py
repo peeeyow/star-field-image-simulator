@@ -32,10 +32,15 @@ def generate_star_field_image(
 
     sub_image_half_size = (SUB_IMAGE_SIZE - 1) // 2
 
+    centroids = []
+
     for star in stars:
         Mi = star.magnitude
         Ui = star.u
         Vi = star.v
+        IDi = star.index
+
+        centroids.append((IDi, Ui, Vi))
 
         if lazy:
             # compute center pixel
@@ -72,7 +77,7 @@ def generate_star_field_image(
         )
 
         star_field_image[scope] += starContribution
-    return star_field_image
+    return star_field_image, centroids
 
 
 def simulate_star_field_image(
