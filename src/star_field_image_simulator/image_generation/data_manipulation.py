@@ -475,11 +475,13 @@ def create_stars(
 def remove_random_stars(
     stars: list[Star], num_missing_stars: int
 ) -> list[Star]:
+    num_stars = len(stars)
+    if num_stars < NUMBER_OF_STARS_MIN:
+        return stars
     if num_missing_stars < 0:
         raise ValueError("num_missing_stars can't be less than 0")
     if num_missing_stars == 0:
         return stars
-    num_stars = len(stars)
     num_remaining_stars = max(
         num_stars - num_missing_stars, NUMBER_OF_STARS_MIN
     )
