@@ -113,3 +113,40 @@ def simulate_star_field_image(
     return generate_star_field_image(  # type: ignore
         stars, resX, resY, star_intensity, star_sigma, lazy  # type: ignore
     )  # type: ignore
+
+
+def generate_centroids(
+    alpha0: float,
+    delta0: float,
+    phi0: float,
+    resX: int,
+    resY: int,
+    fovX: float,
+    fovY: float,
+    magnitude_limit: float,
+    num_missing_stars: int,
+    num_false_stars: int,
+    min_false_star_magnitude: float,
+):
+    c2i = Celestial2Image(alpha0, delta0, phi0, fovX, fovY, resX, resY)
+    stars = create_stars(
+        alpha0,
+        delta0,
+        magnitude_limit,
+        fovX,
+        fovY,
+        U_COORDINATE_ORIGIN,
+        resX,
+        V_COORDINATE_ORIGIN,
+        resY,
+        c2i,
+        DATABASE_PATH,
+    )
+    stars = remove_random_stars(stars, num_missing_stars)
+    stars.extend(
+        create_false_stars(
+            num_false_stars, resX, resY, min_false_star_magnitude
+        )
+    )
+
+    return [(star.u, star.v) for star in stars]
