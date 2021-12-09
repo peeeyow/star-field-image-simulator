@@ -128,3 +128,6 @@ runner.py
 # vscode
 .vscode
 img.png
+
+# venv
+venv
