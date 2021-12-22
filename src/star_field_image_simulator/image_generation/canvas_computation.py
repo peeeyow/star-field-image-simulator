@@ -15,7 +15,11 @@ from .data_manipulation import (
     create_stars,
     remove_random_stars,
 )
+from numpy.random import default_rng
 from scipy.special import erf
+
+
+rng = default_rng()
 
 
 def generate_star_field_image(
@@ -94,6 +98,7 @@ def simulate_star_field_image(
     min_false_star_magnitude: float,
     star_intensity: float,
     star_sigma: float,
+    position_noise: float,
     lazy: bool,
 ) -> npt.ArrayLike:
     c2i = Celestial2Image(alpha0, delta0, phi0, fovX, fovY, resX, resY)
@@ -116,6 +121,14 @@ def simulate_star_field_image(
             num_false_stars, resX, resY, min_false_star_magnitude
         )
     )
+
+    if position_noise:
+        for star in stars:
+            pixels_u = rng.normal(0, position_noise)
+            pixels_v = rng.normal(0, position_noise)
+            star.u = np.clip(star.u + pixels_u, 0, resX)  # type: ignore
+            star.v = np.clip(star.v + pixels_v, 0, resY)  # type: ignore
+
     return generate_star_field_image(  # type: ignore
         stars, resX, resY, star_intensity, star_sigma, lazy  # type: ignore
     )  # type: ignore
