@@ -113,7 +113,9 @@ class Star:
 
     def compute_pixel_coordinate(self, camera_matrix: npt.ArrayLike) -> None:
         """Computes for the u and v pixel coordinates"""
-        direction_vector = np.array([[self.X], [self.Y], [self.Z]])
+        direction_vector = np.array(
+            [[self.X], [self.Y], [self.Z]]
+        )  # type: ignore
         homogenous_vector = np.dot(camera_matrix, direction_vector).flatten()
         self.u, self.v, _ = homogenous_vector / homogenous_vector[-1]
 
