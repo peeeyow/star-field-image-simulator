@@ -36,7 +36,6 @@ regex==2021.11.10
 scipy==1.7.3
 setuptools-scm==6.3.2
 six==1.16.0
--e git+ssh://git@github.com/peeeyow/star-field-image-simulator.git@98db49e9fed201a9e02a1166de848e67cf2a7c2e#egg=star_field_image_simulator
 toml==0.10.2
 tomli==1.2.2
 tox==3.24.4
