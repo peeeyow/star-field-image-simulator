@@ -12,7 +12,7 @@ from .data_manipulation import (
     Celestial2Image,
     Star,
     create_false_stars,
-    create_stars,
+    create_stars_list,
     remove_random_stars,
 )
 
@@ -91,7 +91,7 @@ def simulate_star_field_image(
     lazy: bool,
 ) -> npt.ArrayLike:
     c2i = Celestial2Image(alpha0, delta0, phi0, fovX, fovY, resX, resY)
-    stars = create_stars(
+    stars = create_stars_list(
         alpha0,
         delta0,
         magnitude_limit,
@@ -129,7 +129,7 @@ def generate_centroids(
     min_false_star_magnitude: float,
 ):
     c2i = Celestial2Image(alpha0, delta0, phi0, fovX, fovY, resX, resY)
-    stars = create_stars(
+    stars = create_stars_list(
         alpha0,
         delta0,
         magnitude_limit,

@@ -6,7 +6,7 @@ from star_field_image_simulator.image_generation.constants import (
 
 from star_field_image_simulator.image_generation.data_manipulation import (
     Celestial2Image,
-    create_stars,
+    create_stars_list,
     is_within_canvass,
     Star,
 )
@@ -112,7 +112,7 @@ def test_build_stars(alpha0, delta0, expected_stars):
     v_coordinate_origin = V_COORDINATE_ORIGIN
     resY = 1024
     c2i = Celestial2Image(alpha0, delta0, phi0, fovX, fovY, resX, resY)
-    actual_stars = create_stars(
+    actual_stars = create_stars_list(
         alpha0,
         delta0,
         magnitude,

@@ -438,7 +438,7 @@ def is_within_canvass(
     )  # type: ignore
 
 
-def create_stars(
+def create_stars_list(
     alpha0: float,
     delta0: float,
     magnitude: float,
