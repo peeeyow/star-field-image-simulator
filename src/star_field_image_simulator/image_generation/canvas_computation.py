@@ -22,12 +22,13 @@ from scipy.special import erf
 rng = default_rng()
 
 
-def generate_star_field_image(
+def draw_star_field_image(
     stars: list[Star],
     resX: int,
     resY: int,
     star_intensity: float,
     star_sigma: float,
+    integrated: bool = True,
     lazy: bool = True,
 ):
     indices_u, indices_v = np.meshgrid(np.arange(resX), np.arange(resY))
@@ -66,25 +67,38 @@ def generate_star_field_image(
             vScope = np.arange(V_COORDINATE_ORIGIN, resY)
 
         scope = np.ix_(vScope.astype(int), uScope.astype(int))  # type: ignore
-        # input to erf
-        x1 = (indices_u[scope] + 1 - Ui) / (np.sqrt(2) * star_sigma)
-        x2 = (indices_u[scope] - Ui) / (np.sqrt(2) * star_sigma)
-        y1 = (indices_v[scope] + 1 - Vi) / (np.sqrt(2) * star_sigma)
-        y2 = (indices_v[scope] - Vi) / (np.sqrt(2) * star_sigma)
+        if integrated:
+            # input to erf
+            x1 = (indices_u[scope] + 1 - Ui) / (np.sqrt(2) * star_sigma)
+            x2 = (indices_u[scope] - Ui) / (np.sqrt(2) * star_sigma)
+            y1 = (indices_v[scope] + 1 - Vi) / (np.sqrt(2) * star_sigma)
+            y2 = (indices_v[scope] - Vi) / (np.sqrt(2) * star_sigma)
 
-        # computing starContribution
-        starContribution = (
-            (star_intensity / STAR_INTENSITY_LEVEL ** Mi)
-            * (np.pi * star_sigma ** 2 / 2)
-            * (erf(x1) - erf(x2))
-            * (erf(y1) - erf(y2))
-        )
+            # computing starContribution
+            starContribution = (
+                (star_intensity / STAR_INTENSITY_LEVEL ** Mi)
+                * (np.pi * star_sigma ** 2 / 2)
+                * (erf(x1) - erf(x2))
+                * (erf(y1) - erf(y2))
+            )
 
-        star_field_image[scope] += starContribution
+            star_field_image[scope] += starContribution
+        else:
+
+            x = indices_u[scope] - Ui
+            y = indices_v[scope] - Vi
+
+            # computing starContribution
+            starContribution = (
+                star_intensity / STAR_INTENSITY_LEVEL ** Mi
+            ) * (np.exp(-(x ** 2 + y ** 2) / (2 * star_sigma ** 2)))
+
+            star_field_image[scope] += starContribution
+
     return star_field_image, centroids
 
 
-def simulate_star_field_image(
+def generate_star_field_image(
     alpha0: float,
     delta0: float,
     phi0: float,
@@ -99,7 +113,8 @@ def simulate_star_field_image(
     star_intensity: float,
     star_sigma: float,
     position_noise: float,
-    lazy: bool,
+    integrated: bool = True,
+    lazy: bool = True,
 ) -> npt.ArrayLike:
     c2i = Celestial2Image(alpha0, delta0, phi0, fovX, fovY, resX, resY)
     stars = create_stars_list(
@@ -129,6 +144,6 @@ def simulate_star_field_image(
             star.u = np.clip(star.u + pixels_u, 0, resX)  # type: ignore
             star.v = np.clip(star.v + pixels_v, 0, resY)  # type: ignore
 
-    return generate_star_field_image(  # type: ignore
-        stars, resX, resY, star_intensity, star_sigma, lazy  # type: ignore
+    return draw_star_field_image(  # type: ignore
+        stars, resX, resY, star_intensity, star_sigma, integrated, lazy
     )  # type: ignore
