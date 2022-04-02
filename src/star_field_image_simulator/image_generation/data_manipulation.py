@@ -503,3 +503,16 @@ def create_false_stars(
         star.v = resY * rng.random()
         false_stars.append(star)
     return false_stars
+
+
+def create_centroids_list(stars: list[Star]):
+    centroids = []
+
+    for star in stars:
+        Ui = star.u
+        Vi = star.v
+        IDi = star.index
+
+        centroids.append((IDi, Ui, Vi))
+
+    return centroids
